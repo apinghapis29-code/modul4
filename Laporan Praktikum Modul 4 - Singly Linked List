@@ -1,0 +1,245 @@
+# <h1 align="center">Laporan Praktikum Modul 4 - Singly Linked List</h1>
+<p align="center">Hafis Saputra - 109082500087</p>
+
+## Dasar Teori
+
+### A. Singly Linked List
+
+Singly linked list merupakan struktur data yang tersusun dari beberapa node yang saling terhubung menggunakan pointer. Setiap node memiliki dua bagian, yaitu `info` untuk menyimpan data dan `next` untuk menunjuk node berikutnya. Node pertama ditunjuk oleh pointer `first`, sedangkan node terakhir memiliki pointer `next` bernilai `NULL` atau `nullptr`. Berbeda dengan array yang umumnya memiliki ukuran tetap, linked list dapat bertambah atau berkurang sesuai kebutuhan program [1].
+
+### B. Pointer dan Node
+
+Pointer adalah variabel yang menyimpan alamat memori. Pada singly linked list, pointer digunakan untuk menghubungkan satu node dengan node lainnya. Tipe `address` pada program didefinisikan sebagai pointer ke `ElmList`. Dengan demikian, `P->info` digunakan untuk mengakses data pada node, sedangkan `P->next` digunakan untuk mengakses alamat node berikutnya. Jika `next` bernilai `nullptr`, berarti node tersebut tidak menunjuk ke node lain.
+
+### C. Operasi pada Singly Linked List
+
+Operasi dasar pada singly linked list meliputi pembuatan list, alokasi dan dealokasi memori, penyisipan node, penampilan data, penghapusan node, serta penghitungan jumlah node. Fungsi `createList()` membuat list kosong dengan mengatur `first` menjadi `nullptr`. Fungsi `alokasi()` membuat node baru dan mengisi datanya, sedangkan `dealokasi()` membebaskan memori node yang sudah tidak digunakan. Fungsi `insertFirst()` menambahkan node di bagian awal list dan `printInfo()` menampilkan isi list dari awal sampai akhir [1].
+
+Penghapusan node dilakukan sesuai posisi yang ditentukan. `deleteFirst()` menghapus node pertama, `deleteLast()` menghapus node terakhir, dan `deleteAfter()` menghapus node yang berada tepat setelah node tertentu. Sementara itu, `nbList()` menghitung jumlah node yang masih tersimpan dan `deleteList()` menghapus seluruh node hingga list kembali kosong. Operasi-operasi tersebut perlu memperbarui pointer secara benar agar hubungan antar-node tidak terputus secara keliru [1], [2].
+
+### D. Pembagian Program C++
+
+Program dibuat dalam tiga file agar susunannya lebih teratur. File `Singlylist.h` berisi deklarasi struktur data dan prototipe fungsi. File `Singlylist.cpp` berisi implementasi dari fungsi-fungsi tersebut. File `main.cpp` menjadi program utama yang memanggil fungsi untuk membuat list, memasukkan data, melakukan penghapusan, dan menampilkan hasilnya.
+
+## Guided
+
+### 1. Singlylist.h
+
+```cpp
+#ifndef SINGLYLIST_H_INCLUDED
+#define SINGLYLIST_H_INCLUDED
+
+typedef int infotype;
+typedef struct ElmList *address;
+
+struct ElmList {
+    infotype info;
+    address next;
+};
+
+struct List {
+    address first;
+};
+
+void createList(List &L);
+address alokasi(infotype x);
+void dealokasi(address &P);
+void printInfo(const List &L);
+void insertFirst(List &L, address P);
+void deleteFirst(List &L, address &P);
+void deleteLast(List &L, address &P);
+void deleteAfter(List &L, address Prec, address &P);
+int nbList(const List &L);
+void deleteList(List &L);
+
+#endif
+```
+
+File header mendefinisikan tipe data `infotype`, pointer `address`, struktur node `ElmList`, dan struktur `List`. Node memiliki `info` sebagai tempat menyimpan angka serta `next` sebagai penghubung ke node berikutnya. File ini juga memuat prototipe fungsi yang digunakan oleh program utama.
+
+### 2. Singlylist.cpp
+
+```cpp
+#include <iostream>
+#include "Singlylist.h"
+using namespace std;
+
+void createList(List &L) {
+    L.first = nullptr;
+}
+
+address alokasi(infotype x) {
+    address P = new ElmList;
+    P->info = x;
+    P->next = nullptr;
+    return P;
+}
+
+void dealokasi(address &P) {
+    if (P != nullptr) {
+        delete P;
+        P = nullptr;
+    }
+}
+
+void printInfo(const List &L) {
+    address P = L.first;
+    while (P != nullptr) {
+        cout << P->info;
+        if (P->next != nullptr) cout << " ";
+        P = P->next;
+    }
+    cout << endl;
+}
+
+void insertFirst(List &L, address P) {
+    if (P == nullptr) return;
+    P->next = L.first;
+    L.first = P;
+}
+
+void deleteFirst(List &L, address &P) {
+    if (L.first == nullptr) {
+        P = nullptr;
+        return;
+    }
+    P = L.first;
+    L.first = L.first->next;
+    P->next = nullptr;
+}
+
+void deleteLast(List &L, address &P) {
+    if (L.first == nullptr) {
+        P = nullptr;
+        return;
+    }
+    if (L.first->next == nullptr) {
+        P = L.first;
+        L.first = nullptr;
+        return;
+    }
+    address Q = L.first;
+    while (Q->next->next != nullptr) Q = Q->next;
+    P = Q->next;
+    Q->next = nullptr;
+}
+
+void deleteAfter(List &L, address Prec, address &P) {
+    if (Prec == nullptr || Prec->next == nullptr) {
+        P = nullptr;
+        return;
+    }
+    P = Prec->next;
+    Prec->next = P->next;
+    P->next = nullptr;
+}
+
+int nbList(const List &L) {
+    int jumlah = 0;
+    address P = L.first;
+    while (P != nullptr) {
+        jumlah++;
+        P = P->next;
+    }
+    return jumlah;
+}
+
+void deleteList(List &L) {
+    address P;
+    while (L.first != nullptr) {
+        P = L.first;
+        L.first = L.first->next;
+        dealokasi(P);
+    }
+}
+```
+
+Pada file implementasi, `createList()` menginisialisasi list kosong. Fungsi `alokasi()` membuat node baru, sedangkan `insertFirst()` memasukkan node ke bagian paling depan. Fungsi `printInfo()` menelusuri node menggunakan perulangan sampai menemukan `nullptr`. Fungsi penghapusan memperbarui hubungan pointer sebelum memori node dibebaskan. `nbList()` menghitung node yang tersisa dan `deleteList()` menghapus semua node satu per satu.
+
+### 3. main.cpp — Latihan 1 dan 2
+
+```cpp
+#include <iostream>
+#include "Singlylist.h"
+using namespace std;
+
+int main() {
+    List L;
+    address P1, P2, P3, P4, P5;
+    createList(L);
+
+    P1 = alokasi(2);
+    insertFirst(L, P1);
+
+    P2 = alokasi(0);
+    insertFirst(L, P2);
+
+    P3 = alokasi(8);
+    insertFirst(L, P3);
+
+    P4 = alokasi(12);
+    insertFirst(L, P4);
+
+    P5 = alokasi(9);
+    insertFirst(L, P5);
+
+    cout << "List awal: ";
+    printInfo(L);
+
+    address Hapus;
+    deleteFirst(L, Hapus);
+    dealokasi(Hapus);
+
+    deleteLast(L, Hapus);
+    dealokasi(Hapus);
+
+    // Node 8 dihapus dengan menghapus node setelah node 12.
+    address Prec = L.first;
+    deleteAfter(L, Prec, Hapus);
+    dealokasi(Hapus);
+
+    cout << "List setelah penghapusan: ";
+    printInfo(L);
+    cout << "Jumlah node : " << nbList(L) << endl;
+
+    deleteList(L);
+    cout << "- List Berhasil Terhapus -" << endl;
+    cout << "Jumlah node : " << nbList(L) << endl;
+
+    return 0;
+}
+```
+
+Pada awal program, nilai dimasukkan menggunakan `insertFirst()`. Karena setiap nilai selalu dimasukkan di bagian awal, urutan list yang terbentuk adalah `9 -> 12 -> 8 -> 0 -> 2`. Setelah itu, program mengerjakan penghapusan sesuai soal latihan: node 9 dihapus dengan `deleteFirst()`, node 2 dihapus dengan `deleteLast()`, lalu node 8 dihapus menggunakan `deleteAfter()` dengan node 12 sebagai node sebelumnya. Node yang telah dilepas dari list kemudian dibebaskan memorinya menggunakan `dealokasi()`.
+
+## Unguided
+
+### 1. Hasil Pengujian Program
+
+Program dijalankan untuk memastikan operasi penyisipan dan penghapusan node berjalan sesuai instruksi soal. Hasil keluaran konsol yang diperoleh adalah sebagai berikut.
+
+```text
+List awal: 9 12 8 0 2
+List setelah penghapusan: 12 0
+Jumlah node : 2
+- List Berhasil Terhapus -
+Jumlah node : 0
+```
+SS output 1 : https://github.com/apinghapis29-code/modul4/blob/a4c12850bb5e4f611c258ba161bdf8d93d993e97/Output%201.jpeg
+SS Output 2 : https://github.com/apinghapis29-code/modul4/blob/44d0185f7952321432a9f343367e932501f15c3e/Output%202.jpeg
+
+### 2. Analisis Hasil
+
+Pada keluaran awal, list berisi lima node dengan urutan `9, 12, 8, 0, 2`. Setelah `deleteFirst()` dijalankan, node 9 terhapus sehingga node 12 menjadi node pertama. Berikutnya, `deleteLast()` menghapus node 2 yang berada di bagian akhir. Operasi `deleteAfter()` menggunakan node 12 sebagai node sebelumnya sehingga node setelah 12, yaitu node 8, berhasil dihapus. Hasil akhirnya adalah `12 0` dengan jumlah dua node. Terakhir, `deleteList()` menghapus seluruh node yang tersisa sehingga jumlah node menjadi nol. Hasil ini sesuai dengan keluaran yang diharapkan pada soal latihan Modul 4 [2].
+
+## Kesimpulan
+
+1. Singly linked list menyimpan data dalam node yang saling terhubung melalui pointer `next`, sedangkan `first` menunjuk node pertama.
+2. Operasi `insertFirst()`, `deleteFirst()`, `deleteLast()`, dan `deleteAfter()` dapat digunakan untuk mengatur isi list dengan memperbarui hubungan pointer.
+3. Fungsi `nbList()` dapat menghitung jumlah node, sedangkan `deleteList()` menghapus semua node sehingga list kembali kosong. Hasil program sesuai dengan keluaran yang diminta pada soal latihan.
+
+## Referensi
+
+[1] Tim Penyusun, *Modul 4: Singly Linked List (Bagian Pertama)*, Buku Ajar Praktikum Struktur Data, hlm. 36–46, t.t.
+
+[2] Tim Penyusun, *Soal Latihan Modul 4 Praktikum Struktur Data*, lembar soal praktikum, t.t.
